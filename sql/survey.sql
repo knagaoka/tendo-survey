@@ -4,11 +4,11 @@ DROP TABLE prompt_dialog_mapping;
 DROP TABLE prompt_response_type;
 DROP TABLE patient_survey;
 DROP TABLE patient_answer;
+DROP TABLE patient_data;
 
 CREATE TABLE IF NOT EXISTS survey (
     id VARCHAR(255) NOT NULL PRIMARY KEY,
-	tenant VARCHAR(100) NOT NULL,
-	prompt_ids text[]
+	tenant VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS prompt (

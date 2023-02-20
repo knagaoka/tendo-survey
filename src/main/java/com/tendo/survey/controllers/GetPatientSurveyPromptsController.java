@@ -1,16 +1,10 @@
 package com.tendo.survey.controllers;
 
-import com.tendo.survey.models.dao.Prompt;
-import com.tendo.survey.models.dao.PromptDialogMapping;
-import com.tendo.survey.models.dao.PromptResponseType;
-import com.tendo.survey.models.dao.Survey;
+import com.tendo.survey.models.dao.*;
 import com.tendo.survey.models.web.GetPromptResponse;
 import com.tendo.survey.models.web.GetSurveyPromptsRequest;
 import com.tendo.survey.models.web.GetSurveyPromptsResponse;
-import com.tendo.survey.repositories.PromptDialogMappingRepository;
-import com.tendo.survey.repositories.PromptRepository;
-import com.tendo.survey.repositories.PromptResponseTypeRepository;
-import com.tendo.survey.repositories.SurveyRepository;
+import com.tendo.survey.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,18 +20,20 @@ public class GetPatientSurveyPromptsController {
     private final PromptRepository promptRepository;
     private final PromptDialogMappingRepository promptDialogMappingRepository;
     private final PromptResponseTypeRepository promptResponseTypeRepository;
+    private final PatientDataRepository patientDataRepository;
 
     @Autowired
     public GetPatientSurveyPromptsController(
             SurveyRepository surveyRepository,
             PromptRepository promptRepository,
             PromptDialogMappingRepository promptDialogMappingRepository,
-            PromptResponseTypeRepository promptResponseTypeRepository
-    ) {
+            PromptResponseTypeRepository promptResponseTypeRepository,
+            PatientDataRepository patientDataRepository) {
         this.surveyRepository = surveyRepository;
         this.promptRepository = promptRepository;
         this.promptDialogMappingRepository = promptDialogMappingRepository;
         this.promptResponseTypeRepository = promptResponseTypeRepository;
+        this.patientDataRepository = patientDataRepository;
     }
 
     @PostMapping(path = "/patientSurveyPrompts")
@@ -46,22 +42,36 @@ public class GetPatientSurveyPromptsController {
         if (surveyOpt.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         Survey survey = surveyOpt.get();
-        List<Prompt> prompts = promptRepository.getPrompts(Arrays.asList(survey.getPromptIds()));
-        List<GetPromptResponse> getPromptResponses = prompts.stream()
-                .map(prompt -> getGetPromptResponse(prompt, getSurveyPromptsRequest.getJson()))
-                .collect(Collectors.toList());
+        GetSurveyPromptsResponse getSurveyPromptsResponse = getGetSurveyPromptsResponse(survey, getSurveyPromptsRequest.getJson());
 
-        GetSurveyPromptsResponse getSurveyPromptsResponse = new GetSurveyPromptsResponse();
-        getSurveyPromptsResponse.setSurveyId(survey.getId().toString());
-        getSurveyPromptsResponse.setPrompts(getPromptResponses);
         return new ResponseEntity<>(getSurveyPromptsResponse, HttpStatus.OK);
     }
 
     @GetMapping(path = "/patientSurveyPrompts/{surveyId}/{bundleId}")
     public @ResponseBody ResponseEntity<GetSurveyPromptsResponse> get(@PathVariable String surveyId, @PathVariable String bundleId) {
-        // TODO
-        // call service that gets the bundle JSON
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        Optional<Survey> surveyOpt = surveyRepository.findById(UUID.fromString(surveyId));
+        if (surveyOpt.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        Optional<PatientData> patientDataOpt = patientDataRepository.findById(UUID.fromString(bundleId));
+        if (patientDataOpt.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        Survey survey = surveyOpt.get();
+        PatientData patientData = patientDataOpt.get();
+        GetSurveyPromptsResponse getSurveyPromptsResponse = getGetSurveyPromptsResponse(survey, patientData.dataString());
+
+        return new ResponseEntity<>(getSurveyPromptsResponse, HttpStatus.OK);
+    }
+
+    private GetSurveyPromptsResponse getGetSurveyPromptsResponse(Survey survey, String json) {
+        List<Prompt> prompts = promptRepository.getPrompts(survey.getId().toString());
+        List<GetPromptResponse> getPromptResponses = prompts.stream()
+                .map(prompt -> getGetPromptResponse(prompt, json))
+                .collect(Collectors.toList());
+
+        GetSurveyPromptsResponse getSurveyPromptsResponse = new GetSurveyPromptsResponse();
+        getSurveyPromptsResponse.setSurveyId(survey.getId().toString());
+        getSurveyPromptsResponse.setPrompts(getPromptResponses);
+        return getSurveyPromptsResponse;
     }
 
     private GetPromptResponse getGetPromptResponse(Prompt prompt, String json) {

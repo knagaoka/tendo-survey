@@ -80,7 +80,7 @@ public class PatientAnswerController {
         if (patientDataOpt.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         PatientData patientData = patientDataOpt.get();
-        List<Prompt> prompts = promptRepository.getPrompts(Arrays.asList(survey.getPromptIds()));
+        List<Prompt> prompts = promptRepository.getPrompts(survey.getId().toString());
         List<GetPatientPromptAnswer> getPatientPromptAnswers = prompts.stream()
                 .map(prompt -> getGetPatientPromptAnswer(prompt, patientData.dataString(), patientSurveyId))
                 .collect(Collectors.toList());

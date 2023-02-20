@@ -18,8 +18,4 @@ public class Survey {
 
     @Column(name = "tenant", nullable = false)
     private String tenant;
-
-    @Column(name = "prompt_ids", nullable = false)
-    @Type(type = "io.hypersistence.utils.hibernate.type.array.StringArrayType")
-    private String[] promptIds;
 }
