@@ -61,7 +61,7 @@ public class PatientAnswerController {
             newPatientAnswer.setUserId(userId);
             newPatientAnswer.setPromptId(putPatientAnswer.getPromptId());
             Map<String, Object> answerValue = new HashMap<>();
-            PromptResponseType promptResponseType = promptResponseTypeRepository.getPromptResponseType(putPatientAnswer.getPromptId());
+            PromptResponseType promptResponseType = promptResponseTypeRepository.findByPromptId(putPatientAnswer.getPromptId());
             answerValue.put(promptResponseType.getType(), putPatientAnswer.getAnswer());
             newPatientAnswer.setValue(answerValue);
             patientAnswerRepository.save(newPatientAnswer);
@@ -84,11 +84,11 @@ public class PatientAnswerController {
         if (patientDataOpt.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         PatientData patientData = patientDataOpt.get();
-        List<Prompt> prompts = promptRepository.getPrompts(survey.getId().toString());
+        List<Prompt> prompts = promptRepository.findBySurveyId(survey.getId().toString());
         List<GetPatientPromptAnswer> getPatientPromptAnswers = prompts.stream()
                 .map(prompt -> getGetPatientPromptAnswer(prompt, patientData.dataString(), patientSurveyId))
                 .collect(Collectors.toList());
-        List<GetPromptGreeting> getPromptGreetings = promptGreetingRepository.getPromptGreetings(survey.getId().toString()).stream()
+        List<GetPromptGreeting> getPromptGreetings = promptGreetingRepository.findBySurveyId(survey.getId().toString()).stream()
                 .map(promptGreeting -> new GetPromptGreeting(promptGreeting.getType(), promptGreeting.getText()))
                 .collect(Collectors.toList());
 
@@ -103,7 +103,7 @@ public class PatientAnswerController {
 
     private GetPatientPromptAnswer getGetPatientPromptAnswer(Prompt prompt, String json, String patientSurveyId) {
         String promptId = prompt.getId().toString();
-        PromptDialogMapping promptDialogMapping = promptDialogMappingRepository.getPromptDialogMapping(promptId);
+        PromptDialogMapping promptDialogMapping = promptDialogMappingRepository.findByPromptId(promptId);
         String text = prompt.templateToText(json, promptDialogMapping.getMappings());
         PatientAnswer patientAnswer = patientAnswerRepository.getPatientAnswer(prompt.getId().toString(), patientSurveyId);
 

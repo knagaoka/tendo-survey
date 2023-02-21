@@ -63,7 +63,7 @@ public class GetPatientSurveyPromptsController {
     }
 
     private GetSurveyPromptsResponse getGetSurveyPromptsResponse(Survey survey, String json) {
-        List<Prompt> prompts = promptRepository.getPrompts(survey.getId().toString());
+        List<Prompt> prompts = promptRepository.findBySurveyId(survey.getId().toString());
         List<GetPromptResponse> getPromptResponses = prompts.stream()
                 .map(prompt -> getGetPromptResponse(prompt, json))
                 .collect(Collectors.toList());
@@ -76,8 +76,8 @@ public class GetPatientSurveyPromptsController {
 
     private GetPromptResponse getGetPromptResponse(Prompt prompt, String json) {
         String promptId = prompt.getId().toString();
-        PromptResponseType promptResponseType = promptResponseTypeRepository.getPromptResponseType(promptId);
-        PromptDialogMapping promptDialogMapping = promptDialogMappingRepository.getPromptDialogMapping(promptId);
+        PromptResponseType promptResponseType = promptResponseTypeRepository.findByPromptId(promptId);
+        PromptDialogMapping promptDialogMapping = promptDialogMappingRepository.findByPromptId(promptId);
         String text = prompt.templateToText(json, promptDialogMapping.getMappings());
         GetPromptResponse getPromptResponse = new GetPromptResponse();
         getPromptResponse.setId(promptId);

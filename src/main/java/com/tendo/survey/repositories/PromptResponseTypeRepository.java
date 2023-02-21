@@ -9,12 +9,5 @@ import java.util.UUID;
 @RepositoryRestResource
 public interface PromptResponseTypeRepository extends CrudRepository<PromptResponseType, UUID> {
 
-    default PromptResponseType getPromptResponseType(String promptId) {
-        for (PromptResponseType promptResponseType: findAll()) {
-            if (promptResponseType.getPromptId().equals(promptId)) {
-                return promptResponseType;
-            }
-        }
-        return null;
-    }
+    PromptResponseType findByPromptId(String promptId);
 }
