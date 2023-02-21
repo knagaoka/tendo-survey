@@ -9,4 +9,5 @@ public class GetPatientSurveyAnswers {
     private String patientSurveyId;
     private String surveyId;
     private List<GetPatientPromptAnswer> promptAnswers;
+    private List<GetPromptGreeting> promptGreetings;
 }

@@ -3,6 +3,7 @@ package com.tendo.survey.controllers;
 import com.tendo.survey.models.dao.*;
 import com.tendo.survey.models.web.GetPatientPromptAnswer;
 import com.tendo.survey.models.web.GetPatientSurveyAnswers;
+import com.tendo.survey.models.web.GetPromptGreeting;
 import com.tendo.survey.models.web.PutPatientAnswers;
 import com.tendo.survey.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ public class PatientAnswerController {
     private final PromptRepository promptRepository;
     private final PromptDialogMappingRepository promptDialogMappingRepository;
     private final PromptResponseTypeRepository promptResponseTypeRepository;
+    private final PromptGreetingRepository promptGreetingRepository;
     private final SurveyRepository surveyRepository;
 
     @Autowired
@@ -32,6 +34,7 @@ public class PatientAnswerController {
             PromptRepository promptRepository,
             PromptDialogMappingRepository promptDialogMappingRepository,
             PromptResponseTypeRepository promptResponseTypeRepository,
+            PromptGreetingRepository promptGreetingRepository,
             SurveyRepository surveyRepository
     ) {
         this.patientSurveyRepository = patientSurveyRepository;
@@ -40,6 +43,7 @@ public class PatientAnswerController {
         this.promptRepository = promptRepository;
         this.promptDialogMappingRepository = promptDialogMappingRepository;
         this.promptResponseTypeRepository = promptResponseTypeRepository;
+        this.promptGreetingRepository = promptGreetingRepository;
         this.surveyRepository = surveyRepository;
     }
 
@@ -84,11 +88,15 @@ public class PatientAnswerController {
         List<GetPatientPromptAnswer> getPatientPromptAnswers = prompts.stream()
                 .map(prompt -> getGetPatientPromptAnswer(prompt, patientData.dataString(), patientSurveyId))
                 .collect(Collectors.toList());
+        List<GetPromptGreeting> getPromptGreetings = promptGreetingRepository.getPromptGreetings(survey.getId().toString()).stream()
+                .map(promptGreeting -> new GetPromptGreeting(promptGreeting.getType(), promptGreeting.getText()))
+                .collect(Collectors.toList());
 
         GetPatientSurveyAnswers getPatientSurveyAnswers = new GetPatientSurveyAnswers();
         getPatientSurveyAnswers.setPatientSurveyId(patientSurvey.getId().toString());
         getPatientSurveyAnswers.setSurveyId(patientSurvey.getSurveyId());
         getPatientSurveyAnswers.setPromptAnswers(getPatientPromptAnswers);
+        getPatientSurveyAnswers.setPromptGreetings(getPromptGreetings);
 
         return new ResponseEntity<>(getPatientSurveyAnswers, HttpStatus.OK);
     }

@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS survey (
 CREATE TABLE IF NOT EXISTS prompt (
     id VARCHAR(255) NOT NULL PRIMARY KEY,
     survey_id VARCHAR(255) NOT NULL,
-    text text NOT NULL
+    text TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS  prompt_dialog_mapping (
@@ -28,6 +28,13 @@ CREATE TABLE IF NOT EXISTS prompt_response_type (
     prompt_id VARCHAR(255) NOT NULL,
     type VARCHAR(100) NOT NULL,
     options JSON NULL
+);
+
+CREATE TABLE IF NOT EXISTS prompt_greeting (
+    id VARCHAR(255) NOT NULL PRIMARY KEY,
+    survey_id VARCHAR(255) NOT NULL,
+    type VARCHAR(100) NOT NULL,
+    text TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS patient_survey (

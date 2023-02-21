@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface PromptDialogMappingRepository extends CrudRepository<PromptDialogMapping, UUID> {
 
     default PromptDialogMapping getPromptDialogMapping(String promptId) {
-        for(PromptDialogMapping promptDialogMapping: findAll()) {
+        for (PromptDialogMapping promptDialogMapping: findAll()) {
             if (promptDialogMapping.getPromptId().equals(promptId)) {
                 return promptDialogMapping;
             }
