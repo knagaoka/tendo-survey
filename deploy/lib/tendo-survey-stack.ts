@@ -10,7 +10,8 @@ export class TendoSurveyStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const imageRepository = new ecr.Repository(this, 'tendo-survey-repo');
+    // readonly, this is created, managed, and pushed to separately
+    const imageRepository = ecr.Repository.fromRepositoryName(this, id, 'tendo-survey-repo');
 
     const vpc = new ec2.Vpc(this, 'survey-vpc', {
       maxAzs: 2,
@@ -28,6 +29,17 @@ export class TendoSurveyStack extends cdk.Stack {
     });
     db.connections.allowFromAnyIpv4(ec2.Port.allTraffic(), 'Allow all traffic');
 
+    const secrets = {
+      'DB_HOSTNAME': ecs.Secret.fromSecretsManager(
+        db.secret!,
+        'host'
+      ),
+      'DB_PASSWORD': ecs.Secret.fromSecretsManager(
+        db.secret!,
+        'password'
+      )
+    };
+  
     const cluster = new ecs.Cluster(this, 'survey-cluster', {
       vpc: vpc
     });
@@ -38,7 +50,8 @@ export class TendoSurveyStack extends cdk.Stack {
       desiredCount: 1,
       taskImageOptions: {
         image: ecs.ContainerImage.fromEcrRepository(imageRepository, 'latest'),
-        containerPort: 8080
+        containerPort: 8080,
+        secrets: secrets
       },
       memoryLimitMiB: 1024,
       publicLoadBalancer: true,

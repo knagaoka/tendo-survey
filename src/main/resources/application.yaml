@@ -1,5 +1,5 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOSTNAME:host.docker.internal}/survey
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:password}
+    url: jdbc:postgresql://${DB_HOSTNAME}/survey
+    username: postgres
+    password: ${DB_PASSWORD}
