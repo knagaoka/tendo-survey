@@ -1,4 +1,15 @@
+bin/
 build/
 .idea/
+.vscode/
 .gradle/
+.metals/
+.bloop/
+node_modules
+
 .DS_Store
+*.js
+!jest.config.js
+*.d.ts
+.cdk.staging
+cdk.out
